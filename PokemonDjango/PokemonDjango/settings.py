@@ -25,7 +25,7 @@ SECRET_KEY = 'm#$oka6ss&kg&o3b60h%djnd=450j%_05c(svi=tiwwb5_#es@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ['pokemonproject'] + '.azurewebsites.net', '127.0.0.1'] if 'pokemonproject' in os.environ else []
 
 
 # Application definition
