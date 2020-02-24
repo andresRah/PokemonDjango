@@ -20,7 +20,7 @@ from pokemon import views as pokemonViews
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('pokemon/', pokemonViews.list_pokemon),
-    path('chainID/', pokemonViews.searchChainByID),
+    # path('pokemon/', pokemonViews.list_pokemon),
+    # path('chainID/', pokemonViews.searchChainByID),
     path('getPokemonInfo/', pokemonViews.searchPokemonInfoByName),
 ]
