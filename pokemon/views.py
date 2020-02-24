@@ -5,6 +5,8 @@ from django.shortcuts import render
 import json
 import requests
 from pokemon import models
+from pokemon import utilities
+
 # Create your views here.
 post = [
     {
@@ -73,6 +75,12 @@ def list_pokemon1(request):
 
 # Create your views here.
 urlApi = 'https://pokeapi.co/api/v2/evolution-chain/%s'
+
+def searchPokemonInfoByName(request):
+    name = request.GET['name']
+    utilities_pokemon = utilities.UtilitiesPokemon()
+    pokemon_list = utilities_pokemon.getPokemonEvolutionByName(name)
+    return HttpResponse(json.dumps(pokemon_list), content_type='aplication/json')
 
 def searchChainByID(request):
     idChain = 5

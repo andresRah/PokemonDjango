@@ -113,3 +113,31 @@ class UtilitiesPokemon:
             else:
                 evoData = evoData[0]
         return evoChain
+
+    def getPokemonEvolutionByName(self, name):
+        pokemon_object = models.Pokemon.objects.filter(name__contains=name).values()
+        pokemon_list = []
+
+        for pokemon in pokemon_object:
+            pokemondict = {}
+            pokemon_statslist = []
+
+            evolutions_object = models.Evolution.objects.filter(pokemon_id=pokemon['id']).values()
+            list_evolution_obj = [entry for entry in evolutions_object]
+
+            stats_object = models.StatElement.objects.filter(pokemon_id=pokemon['id']).values()
+
+            for stats in stats_object:
+                statselements_object = models.StatsPokemon.objects.filter(stat_id=stats['id']).values()
+                statslist = ([entry for entry in statselements_object])
+
+                pokemonstats = {'info': stats, 'values': statslist }
+
+                pokemon_statslist.append(pokemonstats)
+
+            pokemondict['pokemon_info'] = pokemon
+            pokemondict['evolutions'] = list_evolution_obj
+            pokemondict['stats'] = pokemon_statslist
+            pokemon_list.append(pokemondict)
+
+        return pokemon_list
