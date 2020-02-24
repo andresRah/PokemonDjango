@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from datetime import datetime
 from django.shortcuts import render
+import json
+import requests
+from pokemon import models
 # Create your views here.
 post = [
     {
@@ -67,3 +70,106 @@ def list_pokemon1(request):
              <figure><img src="{picture}"/></figure>
         """.format(**p))
     return HttpResponse('<br>'.join(content))
+
+# Create your views here.
+
+urlApi = 'https://pokeapi.co/api/v2/evolution-chain/%s'
+
+def searchChainByID(request):
+    idChain = 2
+    response = requests.get(urlApi % idChain)
+    chains = response.json()
+    evoData = chains['chain']
+    evolutionId = chains['id']
+
+    evoChain = getAllEvolutions(evoData, evolutionId)
+
+    for pokemon in evoChain:
+        info_specie = get_SpecieInfo(pokemon['url_specie'])
+        pokemon.update(info_specie)
+
+    evoChain = getEvolution_chain(evoChain)
+
+    evoChain = cleanRespose(evoChain)
+
+    pokemonObj = models.Pokemon()
+    pokemonObj.savePokemon(evoChain)
+
+    return HttpResponse(json.dumps(evoChain), content_type='application/json')
+
+def cleanRespose(evoChain):
+    listPokemon = []
+    for pokemon in evoChain:
+        listPokemonEvolution = []
+        for evolution in pokemon['evolutions']:
+            newDictionaryEvolution = {
+                'id': evolution['id'],
+                'evolutionChainId': evolution['evolutionChainId'],
+                'name': evolution['name']
+            }
+            listPokemonEvolution.append(newDictionaryEvolution)
+
+        newDictionary = {
+            'name': pokemon['name'],
+            'stats': pokemon['stats'],
+            'height': pokemon['height'],
+            'weight': pokemon['weight'],
+            'id': pokemon['id'],
+            'evolutions': listPokemonEvolution,
+        }
+        listPokemon.append(newDictionary)
+
+    return listPokemon
+
+def getEvolution_chain(evoChain):
+    size = len(evoChain)
+    for item in range(size):
+        pokemon_list = []
+        for pokemon in evoChain[item + 1:]:
+            dictionary = dict(pokemon)
+            pokemon_list.append(dictionary)
+
+        evoChain[item]['evolutions'] = pokemon_list
+
+    return evoChain
+
+def get_SpecieInfo(url_specie):
+    response = requests.get(url_specie)
+    info_specie = response.json()
+    varieties_pokemon = info_specie['varieties']
+    specieFullInfo = {}
+
+    if len(varieties_pokemon) > 0:
+        url_pokemon = varieties_pokemon[0]['pokemon']['url']
+        info_pokemon = get_PokemonInfo(url_pokemon)
+
+        evolves = info_specie['evolves_from_species']
+
+        specieFullInfo['evolves_from_species'] = evolves
+        specieFullInfo['name'] = info_pokemon['name']
+        specieFullInfo['id'] = info_pokemon['id']
+        specieFullInfo['stats'] = info_pokemon['stats']
+        specieFullInfo['weight'] = info_pokemon['weight']
+        specieFullInfo['height'] = info_pokemon['height']
+
+    return specieFullInfo
+
+def get_PokemonInfo(url_pokemon):
+    info_pokemon = requests.get(url_pokemon)
+    return info_pokemon.json()
+
+def getAllEvolutions(evoData, evolutionId):
+    evoChain = []
+
+    while True:
+        evoChain.append({'evolutionChainId': evolutionId,
+                         'name': evoData['species']['name'],
+                         'url_specie': evoData['species']['url']})
+
+        evoData = evoData['evolves_to']
+
+        if len(evoData) <= 0:
+            break
+        else:
+            evoData = evoData[0]
+    return evoChain

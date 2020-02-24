@@ -1,20 +1,25 @@
 from django.db import models
-
-
 # Create your models here.
 
-class User(models.Model):
+class Evolution(models.Model):
+    evolutionChainId = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=100)
-    firstName = models.CharField(max_length=100)
-    lastName = models.CharField(max_length=100)
+class StatsPokemon(models.Model):
+    name = models.CharField(max_length=100)
+    url = models.URLField(max_length=100)
 
-    bio = models.TextField(blank=True)
+class StatElement(models.Model):
+    stat = models.ForeignKey(StatsPokemon, on_delete=models.CASCADE)
+    baseStat = models.CharField(max_length=100)
+    effort = models.CharField(max_length=100)
 
-    birthDate = models.DateField(blank=True, null=True)
+class Pokemon(models.Model):
+    stats = models.ForeignKey(StatsPokemon, on_delete=models.CASCADE)
+    evolutions = models.ForeignKey(Evolution, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    height = models.CharField(max_length=100)
+    weight = models.CharField(max_length=100)
 
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.email
+    def savePokemon(self, pokemonDictionary):
+        ki = pokemonDictionary
