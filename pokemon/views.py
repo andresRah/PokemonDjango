@@ -32,10 +32,9 @@ def getAndSavePokemonChainID(request):
         status = response_utility[0]
 
         if status:
-            response = {'status': "Register created....",
-                        'data': json.loads(response_utility[1])}
+            response = response_utility[1]
         else:
             response = "Register already exists"
     except Exception as ex:
         response = str(ex)
-    return HttpResponse(json.dumps(response), content_type='aplication/json')
+    return HttpResponse(response, content_type='aplication/json')
