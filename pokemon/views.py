@@ -72,28 +72,28 @@ def list_pokemon1(request):
     return HttpResponse('<br>'.join(content))
 
 # Create your views here.
-
 urlApi = 'https://pokeapi.co/api/v2/evolution-chain/%s'
 
 def searchChainByID(request):
-    idChain = 2
-    response = requests.get(urlApi % idChain)
-    chains = response.json()
-    evoData = chains['chain']
-    evolutionId = chains['id']
+    idChain = 5
+    for num in range(idChain):
+        response = requests.get(urlApi % str(num+1))
+        chains = response.json()
+        evoData = chains['chain']
+        evolutionId = chains['id']
 
-    evoChain = getAllEvolutions(evoData, evolutionId)
+        evoChain = getAllEvolutions(evoData, evolutionId)
 
-    for pokemon in evoChain:
-        info_specie = get_SpecieInfo(pokemon['url_specie'])
-        pokemon.update(info_specie)
+        for pokemon in evoChain:
+            info_specie = get_SpecieInfo(pokemon['url_specie'])
+            pokemon.update(info_specie)
 
-    evoChain = getEvolution_chain(evoChain)
+        evoChain = getEvolution_chain(evoChain)
 
-    evoChain = cleanRespose(evoChain)
+        evoChain = cleanRespose(evoChain)
 
-    pokemonObj = models.Pokemon()
-    pokemonObj.savePokemon(evoChain)
+        pokemon_model = models.Pokemon()
+        pokemon_model.savePokemon(evoChain)
 
     return HttpResponse(json.dumps(evoChain), content_type='application/json')
 
