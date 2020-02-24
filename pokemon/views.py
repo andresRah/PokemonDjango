@@ -23,3 +23,19 @@ def searchPokemonInfoByName(request):
         response = str(ex)
 
     return HttpResponse(json.dumps(response), content_type='aplication/json')
+
+def getAndSavePokemonChainID(request):
+    try:
+        chain_id = request.GET['chainID']
+        utilities_pokemon = utilities.UtilitiesPokemon()
+        response_utility = utilities_pokemon.searchChainByID(chain_id)
+        status = response_utility[0]
+
+        if status:
+            response = {'status': "Register created....",
+                        'data': response_utility[1]}
+        else:
+            response = "Register already exists"
+    except Exception as ex:
+        response = str(ex)
+    return HttpResponse(json.dumps(response), content_type='aplication/json')

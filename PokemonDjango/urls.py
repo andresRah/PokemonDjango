@@ -23,4 +23,5 @@ urlpatterns = [
     # path('pokemon/', pokemonViews.list_pokemon),
     # path('chainID/', pokemonViews.searchChainByID),
     path('getPokemonInfo/', pokemonViews.searchPokemonInfoByName),
+    path('getAndSavePokemonChainID/', pokemonViews.getAndSavePokemonChainID),
 ]
